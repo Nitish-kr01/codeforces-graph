@@ -1,7 +1,7 @@
 import requests
 import matplotlib.pyplot as plt
 
-handle = "https://codeforces.com/profile/Jaardo"
+handle = "Jaardo"
 
 url = f"https://codeforces.com/api/user.rating?handle={handle}"
 response = requests.get(url)
