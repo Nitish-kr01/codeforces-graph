@@ -24,10 +24,15 @@ jobs:
       - name: Generate Graph
         run: python generate_graph.py
 
-      - name: Commit and Push
+      - name: Commit changes
         run: |
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
           git add rating-graph.svg
-          git commit -m "Update Codeforces rating graph" || echo "No changes"
+          git commit -m "Update Codeforces rating graph" || echo "No changes to commit"
+  
+      - name: Push changes
+        run: |
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git push
+
