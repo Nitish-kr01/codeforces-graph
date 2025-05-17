@@ -11,6 +11,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          persist-credentials: true  # Important for push to work with GITHUB_TOKEN
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -18,8 +20,7 @@ jobs:
           python-version: '3.x'
 
       - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
+        run: pip install -r requirements.txt
 
       - name: Generate Graph
         run: python generate_graph.py
@@ -30,9 +31,6 @@ jobs:
           git config --global user.email 'github-actions@github.com'
           git add rating-graph.svg
           git commit -m "Update Codeforces rating graph" || echo "No changes to commit"
-  
-      - name: Push changes
-        run: |
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-          git push
 
+      - name: Push changes
+        run: git push
