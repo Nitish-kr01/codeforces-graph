@@ -24,43 +24,40 @@ if data["status"] == "OK":
     contests = data["result"]
     if not contests:
         print("No contests found for this handle.")
-        # In a notebook, you might not want to exit, just skip plotting
-        # exit()
+        exit()
+
+    x = np.array([i + 1 for i in range(len(contests))])
+    y = np.array([contest["newRating"] for contest in contests])
+
+    # Smooth the curve
+    x_smooth = np.linspace(x.min(), x.max(), 300)
+    if len(x) >= 4:
+        y_smooth = make_interp_spline(x, y, k=3)(x_smooth)  # cubic
     else:
-        x = np.array([i + 1 for i in range(len(contests))])
-        y = np.array([contest["newRating"] for contest in contests])
+        y_smooth = make_interp_spline(x, y, k=1)(x_smooth)  # linear fallback
 
-        # Smooth the curve
-        x_smooth = np.linspace(x.min(), x.max(), 300)
-        if len(x) >= 4:
-            y_smooth = make_interp_spline(x, y, k=3)(x_smooth)  # cubic
-        else:
-            y_smooth = make_interp_spline(x, y, k=1)(x_smooth)  # linear fallback
+    # Create figure with ~400px width (5.5in × 72dpi)
+    plt.figure(figsize=(5.5, 2.5))
+    ax = plt.gca()
 
-        # Create figure with ~400px width (5.5in × 72dpi)
-        plt.figure(figsize=(5.5, 2.5))
-        ax = plt.gca() # Get the current axes
+    # Remove spines for clean look
+    for spine in ax.spines.values():
+        spine.set_visible(False)
 
-        # Remove the spines
-        ax.spines['top'].set_visible(False)
-        ax.spines['bottom'].set_visible(False)
-        ax.spines['left'].set_visible(False)
-        ax.spines['right'].set_visible(False)
+    # Plot smooth line
+    plt.plot(x_smooth, y_smooth, color='#00bfff', linewidth=1)
 
+    # Grid on y-axis only
+    plt.grid(axis='y', visible=True, linestyle='-', alpha=0.3)
 
-        # Plot only the smoothed line with reduced linewidth
-        plt.plot(x_smooth, y_smooth, color='#00bfff', linewidth=1.5)
+    # Title and ticks
+    plt.title(f"{handle}", fontsize=13, weight='bold')
+    plt.xticks(np.arange(x.min(), x.max() + 1, 1))
+    plt.tight_layout()
 
-        # Area fill under the line
-        #plt.fill_between(x_smooth, y_smooth, y.min() - 100, color='#00bfff', alpha=0.1)
-
-        # Graph styling
-        plt.title(f"{handle}", fontsize=13, weight='bold')
-        plt.grid(axis='y', visible=True, linestyle='-', alpha=0.3) # Only horizontal grid lines
-        plt.tight_layout()
-
-        # Save as SVG
-        plt.savefig("rating-graph.svg", bbox_inches='tight')
-        print("Graph generated successfully.")
+    # Save as SVG
+    plt.savefig("rating-graph.svg", bbox_inches='tight')
+    print("Graph generated successfully.")
 else:
     print("Failed to fetch rating data.")
+
